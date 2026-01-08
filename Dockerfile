@@ -1,7 +1,8 @@
-# Using Python 3.10 slim for better performance and smaller size
-FROM python:3.10-slim-buster
+# Use Bullseye instead of Buster to fix the 404 repository error
+FROM python:3.10-slim-bullseye
 
-# Install system dependencies required for tgcrypto and other C-based extensions
+# Install system dependencies
+# These are needed for tgcrypto, motor, and git-based installs
 RUN apt-get update && apt-get install -y \
     gcc \
     python3-dev \
@@ -12,15 +13,14 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy requirements and install
-# Note: Ensure 'gunicorn' and 'gevent' are in your requirements.txt
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of your code (including plugins/ and database.py)
+# Copy the rest of your ForwardBot code
 COPY . .
 
-# Set execution permissions for the runner
+# Set execution permissions
 RUN chmod +x run.sh
 
-# Heroku doesn't use EXPOSE, it uses the $PORT env var automatically
+# Start the process
 CMD ["./run.sh"]
